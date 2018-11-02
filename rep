@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $1 == "--help" ]; then
+		echo "description: repeats a command x number of times"
+		echo "usage: rep <number> <command>"
+		echo "if the <command> includes a space, put it in quotes"
+else
+		COUNTER=0;
+		while [ $COUNTER -lt $1 ]; do
+				$2 #Executes the command
+				let COUNTER=COUNTER+1
+		done
+fi
