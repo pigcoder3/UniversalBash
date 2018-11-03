@@ -1,0 +1,15 @@
+#!/bin/bash
+if [ -f ~/.profile ]; then
+		DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+		echo "PATH=$PATH:$DIR/scripts" >> ~/.profile
+		PATH=$PATH:$DIR/scripts
+		echo "Restart shell for changes to take effect"
+elif [ -f ~/.bash_profile ]; then
+		DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+		echo "PATH=$PATH:$DIR/scripts" >> ~/.bash_profile
+		PATH=$PATH:$DIR/scripts
+		echo "Restart shell for changes to take effect"
+else
+		echo "Could not complete setup!"
+		echo "Reason: Must have ~/.profile or ~/.bash_profile"
+fi
