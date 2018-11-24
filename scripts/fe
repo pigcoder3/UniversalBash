@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#Plans
+# - Use find / -name (unless dir otherwise specified)
+# - get a list of files with that name
+# - User choses from that list and opens $EDITOR
+
+array=();
+
+function open {
+	printf "File chosen: ${array[$1]}\nOpening file..."
+	${EDITOR:-vi} ${array[($1)]}
+}
+
+function f_print {
+	p=1
+	for i in ${array[@]}; do
+		printf "$p | %s\n" "$i"
+		p=$((p+1))
+	done
+	printf "What file would you like to open? (Enter a number): "
+}
+
+function getWantedFile {
+	f_print
+	while read c; do
+		if [ $c -ge ${#array[*]} ]; then
+			printf "That is not a valid number! (The numbers only go up to ${#array[*]})"
+		else
+			open $(($c - 1))
+			break;
+		fi
+	done
+}
+
+if [ $# = 0 ]; then
+	printf 'usage: fe \<name\> \[directory\]'
+	printf 'fe searches in subdirectories'
+	exit
+fi
+
+if [ $# = 1 ]; then
+	while IFS=  read -r -d $'\0'; do
+		array+=("$REPLY")
+	done < <(find . -name "*$1*" -print0)
+	if [ ${#array[*]} -eq 0 ]; then
+		printf 'no files found!\n'
+	elif [ ${#array[*]} -eq 1 ]; then
+		printf "Only one file found: ${array[0]}\n"
+		open ${array[0]}
+	else
+		getWantedFile
+	fi
+else
+	while IFS=  read -r -d $'\0'; do
+		array+=("$REPLY")
+	done < <(find $2 -name "*$1*" -print0)
+	if [ ${#array[*]} -eq 0 ]; then
+		printf "no files found!\n"
+	elif [ ${#array[*]} -eq 1 ]; then
+		printf "only one file found: ${array[0]}\n"
+		open ${array[0]}
+	else
+		getWantedFile
+	fi
+fi
