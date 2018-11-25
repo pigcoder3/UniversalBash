@@ -12,4 +12,4 @@ This is done by changing the `PATH` in `HOME/.profile` or `HOME/.bash_profile`
 
  - rep - repeats a command x number of times
 
- - fe - finds and edits a file frmo any directory without knowing the exact path (Also called iron)
+ - fe (iron) - finds and edits a file from any directory without knowing the exact path
