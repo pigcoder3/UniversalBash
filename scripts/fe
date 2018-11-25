@@ -8,8 +8,8 @@
 array=();
 
 function open {
-	printf "File chosen: ${array[$1]}\nOpening file..."
-	${EDITOR:-vi} ${array[($1)]}
+	printf "File chosen: ${array[$1]}\nOpening file...\n"
+	${EDITOR:-vi} "${array[$1]}"
 }
 
 function f_print {
@@ -24,7 +24,7 @@ function f_print {
 function getWantedFile {
 	f_print
 	while read c; do
-		if [ $c -ge ${#array[*]} ]; then
+		if [ $c -gt ${#array[*]} ]; then
 			printf "That is not a valid number! (The numbers only go up to ${#array[*]})"
 		else
 			open $(($c - 1))
@@ -41,7 +41,8 @@ fi
 
 if [ $# = 1 ]; then
 	while IFS=  read -r -d $'\0'; do
-		array+=("$REPLY")
+		reply=$(echo "$REPLY" | cut -c 3-)
+		array+=("$reply")
 	done < <(find . -name "*$1*" -print0)
 	if [ ${#array[*]} -eq 0 ]; then
 		printf 'no files found!\n'
@@ -53,7 +54,8 @@ if [ $# = 1 ]; then
 	fi
 else
 	while IFS=  read -r -d $'\0'; do
-		array+=("$REPLY")
+		eply=$(echo "$REPLY" | cut -c 3-)
+		array+=("$reply")
 	done < <(find $2 -name "*$1*" -print0)
 	if [ ${#array[*]} -eq 0 ]; then
 		printf "no files found!\n"
