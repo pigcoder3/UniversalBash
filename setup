@@ -2,12 +2,12 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [ -f ~/.profile ]; then
 		DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-		echo "if [ -d $DIR/scripts ]; then \$PATH=\$PATH:$DIR/scripts; fi" >> ~/.profile
+		echo "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" >> ~/.profile
 		echo "Successfully added the scripts to the PATH"
         echo "Restart shell for changes to take effect"
 elif [ -f ~/.bash_profile ]; then
 		DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-        echo "if [ -d $DIR/scripts ]; then \$PATH=\$PATH:$DIR/scripts; fi" >> ~/.bash_profile
+        echo "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" >> ~/.bash_profile
         echo "Successfully added the scripts to the PATH"
         echo "Restart shell for changes to take effect"
 else
