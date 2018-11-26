@@ -1,11 +1,9 @@
 #!/bin/bash
 
-#Plans
-# - Use find / -name (unless dir otherwise specified)
-# - get a list of files with that name
-# - User choses from that list and opens $EDITOR
-
-array=();
+array=()
+name=""
+directory="."
+maxdepth=0
 
 function open {
 	printf "File chosen: ${array[$1]}\nOpening file...\n"
@@ -33,36 +31,65 @@ function getWantedFile {
 	done
 }
 
+function findFiles {
+	echo $name $directory $maxdepth
+	if [ maxdepth != 0 ]; then
+		while IFS=  read -r -d $'\0'; do
+			array+=("$REPLY")
+		done < <(find $directory -name "*$name*" -maxdepth "$maxdepth" -print0)
+	else
+		while IFS=  read -r -d $'\0'; do
+			if [ ${REPLY:0:2} -eq "./"]; then
+				$REPLY = $(echo $REPLY cut -c 3-)
+			fi
+			array+=("$REPLY")
+		done < <(find $directory -name "$name" -print0)
+	fi
+	printf "${array[*]}\n"
+}
+
 if [ $# = 0 ]; then
-	printf 'usage: fe \<name\> \[directory\]'
-	printf 'fe searches in subdirectories'
+	printf 'usage: fe [-n] [-d] [-md]'
+	printf 'fe searches in subdirectories (unless -md is < 2)'
 	exit
 fi
+while [ $# != 0 ]; do
+	case "$1" in
+		"-n")
+			if [ ! -z $2 ]; then
+				name="$2"
+				shift
+			fi
+			shift
+			;;
+		"-d")
+			if [ ! -z $2 ]; then
+				directory="$2"
+				shift
+			fi
+			shift
+			;;
+		"-md")
+			if [ ! -z $2 ]; then
+				maxdepth=$2
+				shift
+			fi
+			shift
+			;;
+		*)
+			echo "Illegal option -- $1"
+			exit
+			;;
+	esac
+done
 
-if [ $# = 1 ]; then
-	while IFS=  read -r -d $'\0'; do
-		reply=$(echo "$REPLY" | cut -c 3-)
-		array+=("$reply")
-	done < <(find . -name "*$1*" -print0)
-	if [ ${#array[*]} -eq 0 ]; then
-		printf 'no files found!\n'
-	elif [ ${#array[*]} -eq 1 ]; then
-		printf "Only one file found: ${array[0]}\n"
-		open ${array[0]}
-	else
-		getWantedFile
-	fi
+findFiles
+if [ ${#array[*]} -eq 0 ]; then
+	printf "no files found!\n"
+	exit
+elif [ ${#array[*]} -eq 1 ]; then
+	printf "only one file found: ${array[0]}\n"
+	open "0"
 else
-	while IFS=  read -r -d $'\0'; do
-		eply=$(echo "$REPLY" | cut -c 3-)
-		array+=("$reply")
-	done < <(find $2 -name "*$1*" -print0)
-	if [ ${#array[*]} -eq 0 ]; then
-		printf "no files found!\n"
-	elif [ ${#array[*]} -eq 1 ]; then
-		printf "only one file found: ${array[0]}\n"
-		open ${array[0]}
-	else
-		getWantedFile
-	fi
+	getWantedFile
 fi
