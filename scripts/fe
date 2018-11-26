@@ -23,7 +23,6 @@ function getWantedFile {
 	f_print
 	while read c; do
 		if [ $c -gt ${#array[*]} ]; then
-            if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
 			printf "That is not a valid number! (The numbers only go up to ${#array[*]})"
 		else
 			open $(($c - 1))
@@ -35,8 +34,8 @@ function getWantedFile {
 function findFiles {
 	if [ maxdepth != 0 ]; then
 		while IFS=  read -r -d $'\0'; do
-            if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
-            array+=("$REPLY")
+			if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
+            		array+=("$REPLY")
 		done < <(find $directory -maxdepth "$maxdepth" -name "*$name*" -print0)
 	else
 		while IFS=  read -r -d $'\0'; do
