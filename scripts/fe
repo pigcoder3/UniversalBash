@@ -23,6 +23,7 @@ function getWantedFile {
 	f_print
 	while read c; do
 		if [ $c -gt ${#array[*]} ]; then
+            if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
 			printf "That is not a valid number! (The numbers only go up to ${#array[*]})"
 		else
 			open $(($c - 1))
@@ -32,25 +33,22 @@ function getWantedFile {
 }
 
 function findFiles {
-	echo $name $directory $maxdepth
 	if [ maxdepth != 0 ]; then
 		while IFS=  read -r -d $'\0'; do
-			array+=("$REPLY")
-		done < <(find $directory -name "*$name*" -maxdepth "$maxdepth" -print0)
+            if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
+            array+=("$REPLY")
+		done < <(find $directory -maxdepth "$maxdepth" -name "*$name*" -print0)
 	else
 		while IFS=  read -r -d $'\0'; do
-			if [ ${REPLY:0:2} -eq "./"]; then
-				$REPLY = $(echo $REPLY cut -c 3-)
-			fi
+			if [ ${REPLY:0:2} -eq "./"]; then $REPLY = $(echo $REPLY | cut -c 3-); fi
 			array+=("$REPLY")
 		done < <(find $directory -name "$name" -print0)
 	fi
-	printf "${array[*]}\n"
 }
 
 if [ $# = 0 ]; then
-	printf 'usage: fe [-n] [-d] [-md]'
-	printf 'fe searches in subdirectories (unless -md is < 2)'
+	printf 'usage: fe [-n] [-d] [-m]'
+	printf 'fe searches in subdirectories (unless -m is < 2)'
 	exit
 fi
 while [ $# != 0 ]; do
@@ -69,7 +67,7 @@ while [ $# != 0 ]; do
 			fi
 			shift
 			;;
-		"-md")
+		"-m")
 			if [ ! -z $2 ]; then
 				maxdepth=$2
 				shift
