@@ -35,13 +35,13 @@ function findFiles {
 	if [ maxdepth != 0 ]; then
 		while IFS=  read -r -d $'\0'; do
 			if [ ${REPLY:0:2} = "./" ]; then reply=${REPLY:2}; fi
-            array+=("$reply")
-		done < <(find $directory -maxdepth "$maxdepth" -name "*$name*" -print0)
+			if [ ! -d ${reply} ]; then array+=("$reply"); fi
+		done < <(find $directory -maxdepth $maxdepth -name *$name* -print0)
 	else
 		while IFS=  read -r -d $'\0'; do
             if [ ${REPLY:0:1} -eq "./" ]; then reply=${REPLY:2}; fi
-			array+=("$REPLY")
-		done < <(find $directory -name "$name" -print0)
+			if [ ! -d ${reply} ]; then array+=("$reply"); fi
+		done < <(find $directory -name $name -print0)
 	fi
 }
 
