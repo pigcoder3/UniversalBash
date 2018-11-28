@@ -7,7 +7,7 @@ maxdepth=0
 
 function open {
 	printf "File chosen: ${array[$1]}\nOpening file...\n"
-	${EDITOR:-vi} "${array[$1]}"
+	${EDITOR: -vim} "${array[$1]}"
 }
 
 function f_print {
