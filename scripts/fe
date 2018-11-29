@@ -4,6 +4,7 @@ array=()
 name=""
 directory="."
 maxdepth=0
+includeDir=false
 
 function open {
 	printf "File chosen: ${array[$1]}\nOpening file...\n"
@@ -32,16 +33,18 @@ function getWantedFile {
 }
 
 function findFiles {
-	if [ maxdepth != 0 ]; then
+	if [ $maxdepth != 0 ]; then
 		while IFS=  read -r -d $'\0'; do
-			if [ ${REPLY:0:2} = "./" ]; then reply=${REPLY:2}; fi
-			if [ ! -d ${reply} ]; then array+=("$reply"); fi
+			if [ ${REPLY:0:2} = "./" ]; then REPLY=${REPLY:2}; fi
+			if [ -f $REPLY ]; then array+=("$REPLY");
+			elif [ -d $REPLY ] && $includeDir; then array+=("$REPLY"); fi
 		done < <(find $directory -maxdepth $maxdepth -name *$name* -print0)
 	else
 		while IFS=  read -r -d $'\0'; do
-            if [ ${REPLY:0:1} -eq "./" ]; then reply=${REPLY:2}; fi
-			if [ ! -d ${reply} ]; then array+=("$reply"); fi
-		done < <(find $directory -name $name -print0)
+			if [ ${REPLY:0:2} = "./" ]; then REPLY=${REPLY:2}; fi
+			if [ -f $REPLY ]; then array+=("$REPLY");
+			elif [ -d $REPLY ] && $includeDir; then array+=("$REPLY"); fi
+		done < <(find $directory -name *$name* -print0)
 	fi
 }
 
@@ -71,6 +74,11 @@ while [ $# != 0 ]; do
 				maxdepth=$2
 				shift
 			fi
+			shift
+			;;
+		"-include")
+			includeDir=true
+			echo
 			shift
 			;;
 		*)
