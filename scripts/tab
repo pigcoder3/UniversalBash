@@ -13,12 +13,12 @@ case $@ in
         shift
         ;;
     *[0-9]*)
-				i=1
-				while [ $i -lt $1 ]; do
-						printf "\n"
-						((i++))
-				done
-				shift
+		i=1
+		while [ $i -lt $1 ]; do
+			printf "\n"
+			((i++))
+			done
+			shift
         ;;
     *)
         printf "Unknown argument - $1\n"
