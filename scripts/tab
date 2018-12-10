@@ -13,14 +13,15 @@ case $@ in
         shift
         ;;
     *[0-9]*)
-        echo $1
-        for i in {1..$1}; do
-            printf "\n"
-        done
-        shift
+				i=1
+				while [ $i -lt $1 ]; do
+						printf "\n"
+						((i++))
+				done
+				shift
         ;;
     *)
-        printf "Unknown argument - `$arg`\n"
+        printf "Unknown argument - $1\n"
         exit
         ;;
 esac
