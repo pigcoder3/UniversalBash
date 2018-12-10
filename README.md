@@ -10,6 +10,8 @@ This is done by changing the `PATH` in `HOME/.profile` or `HOME/.bash_profile`
 
 ### Scripts inside
 
- - rep - repeats a command x number of times
+ - rep - Repeats a command x number of times
 
- - fe (iron) - finds and edits a file from any directory without knowing the exact path
+ - fe (iron) - Finds and edits a file from any directory without knowing the exact path
+
+ - tab - Creates a newline barrier that is the specified hieght
