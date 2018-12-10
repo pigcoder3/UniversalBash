@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ ! $# = 1 ]; then
+    printf "Usage - tab <number>\n"
+    exit
+fi
+
+case $@ in
+    "--help")
+        printf "tab: echos a barrier of new lines\n"
+        printf "Usage - tab <number>\n"
+        printf "<number> is the number of new lines\n"
+        shift
+        ;;
+    *[0-9]*)
+        echo $1
+        for i in {1..$1}; do
+            printf "\n"
+        done
+        shift
+        ;;
+    *)
+        printf "Unknown argument - `$arg`\n"
+        exit
+        ;;
+esac
