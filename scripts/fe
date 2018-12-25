@@ -23,8 +23,8 @@ function f_print {
 function getWantedFile {
 	f_print
 	while read c; do
-		if [ $c -gt ${#array[*]} ]; then
-			printf "That is not a valid number! (The numbers only go up to ${#array[*]})"
+		if [ $c -gt ${#array[*]} ] || [ $c -lt 1 ]; then
+			printf "That is not a valid number! (The numbers only go up to ${#array[*]}) and down to 1)"
 		else
 			open $(($c - 1))
 			break;
@@ -42,8 +42,8 @@ function findFiles {
 	else
 		while IFS=  read -r -d $'\0'; do
 			if [ ${REPLY:0:2} = "./" ]; then REPLY=${REPLY:2}; fi
-			if [ -f $REPLY ]; then array+=("$REPLY");
-			elif [ -d $REPLY ] && $includeDir; then array+=("$REPLY"); fi
+			if [ -f "$REPLY" ]; then array+=("$REPLY");
+			elif [ -d "$REPLY" ] && [ $includeDir ]; then array+=("$REPLY"); fi
 		done < <(find $directory -name *$name* -print0)
 	fi
 }
