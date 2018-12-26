@@ -1,28 +1,29 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-profiles=($HOME/.bash_profile $HOME/.profile)
-success=1
-for i in $profiles ; do
-	success=1
+profiles=( $HOME/.bash_profile $HOME/.bashrc $HOME/.profile )
+success=0
+fileExists=1
+lineNotInFile=1
+for i in ${profiles[*]}; do
 	if [ ! -f $i ]; then
-		success=0
-		continue
-	fi
-	while IFS= read -r line; do
-		if [ "$line" = "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" ]; then
-				success=0
-				break;		
+		fileExists=0
+	else 
+		while IFS= read -r line; do
+			if [ "$line" = "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" ]; then
+				lineNotInFile=0
+				echo "The scripts directory has already been added to the PATH in your profile ($i)"	
+				exit
+			fi
+		done < $i
+		if [ ! $fileExists = 1 ] || [ $lineNotInFile = 1 ]; then
+			echo "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" >> $i
+			success=1
+			break
 		fi
-	done < $i
-	if [ $success = 1 ]; then
-		echo "if [ -d $DIR/scripts ]; then PATH=\$PATH:$DIR/scripts; fi" >> $i
-	else
-		echo "The scripts directory has already been added to the PATH in your profile ($i)"
-		exit
 	fi
 done
 if [ $success != 1 ]; then
-		echo "The setup failed! (Make sure you have a ~/.bash_profile or ~/.profile)"
+		echo "The setup failed! (Make sure you have a ~/.bash_profile, ~/.bashrc, or ~/.profile)"
 else 
 		echo "The setup was a success! (Placed in ${profiles[$file]})"
 fi
