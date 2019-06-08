@@ -1,0 +1,200 @@
+#!/usr/bin/env bash
+
+dictFile=/usr/share/dict/words
+
+configFile=$HOME/.word
+
+gettingWord=1
+wordSize=0
+verbosity=0
+anySize=1
+regexPattern=''
+dictFileGiven=0
+
+function getWord {
+
+	#$1 = wordSize
+	#$2 = anySize
+	#$3 = verbosity
+	#$4 = regexPattern
+	#$5 = dictFile
+
+	wordSize=$1
+	regexPattern=$4
+	dictFile=$5
+
+	if [ ! -f "$5" ]; then
+		echo "Invalid dictionary file: '$dictFile'."
+		echo "For help: 'word -h'"
+		exit 2
+	fi
+
+	if [ "$3" -ge 1 ]; then
+		echo "Picking a random word from '$dictFile'."
+	fi
+
+	if [ "$1" -le 0 ] && [ "${#4}" -le 0 ]; then
+		words=($(grep '' $dictFile))
+	elif [ "${#4}" -le 0 ]; then
+		words=($(grep "^.\{$wordSize\}$" $dictFile))
+	else
+		words=($(grep $regexPattern $dictFile))
+	fi
+
+	if [ ${#words[@]} -lt 1 ]; then
+		echo "No words found."
+		exit 4
+	fi
+
+	number=$(($(jot -r 1 0 ${#words[@]}) - 1))
+
+	echo "${words[$number]}" 
+
+	exit 0
+
+}
+
+function main {
+
+	while [ ! -z "$1" ]; do
+		case $1 in
+			-s):
+				shift
+				if [ ! -z "$1" ] && [ "$1" -ge 1 ]; then
+					anySize=0
+					gettingWord=2
+					wordSize=$1
+				else
+					echo "Error Word size must be at least 1"
+					echo "For help: 'word -h'"
+					exit 1
+				fi
+				shift
+		 		;;
+
+			--verbose|-v):
+				shift
+				if [ ! -z "$1" ] && [ "$1" -ge 0 ]; then
+					verbosity=$1
+				else
+					echo "Invalid verbosity"
+					echo "For help: 'word -h'"
+					exit 3
+				fi
+				shift
+				;;
+
+			--regex|-r):
+				shift
+				if [ ! -z "$1" ]; then
+					regexPattern="$1"
+					gettingWord=2
+				else
+					echo "A regex pattern must be given with option '-r'."
+					echo "For help: 'word -h'"
+					exit 5
+				fi
+				shift
+				;;
+
+			--file|-f):
+				shift
+				if [ ! -z "$1" ]; then
+					dictFile="$1"
+					dictFileGiven=1
+				else
+					echo "A dictionary file must be given with option '-f'."
+					echo "For help: 'word -h'"
+					exit 5
+				fi
+				shift
+				;;
+
+			--dict|-d):
+				shift
+				if [ ! -z "$1" ] && [ -f "$1" ] && [ -f "$configFile" ]; then
+					echo "" > $configFile
+					echo "$1" > $configFile
+					if [ ! $gettingWord -eq 2 ]; then
+						gettingWord=0
+					fi
+				else
+					echo "A file must be given with option '-d'."
+					echo "For help: 'word -h'"
+					exit 2
+				fi
+				shift
+				;;
+
+			--help|-h):
+				if [ ! $gettingWord -eq 2 ]; then
+					gettingWord=0
+				fi
+				echo "	word - gets a random word from the system dictionary."
+				echo ""
+				echo "	Usage: word [-s size] [-v verbosity] [-h] [-r pattern] [-f filename] [-d filename] "
+				echo ""
+				echo "	Options:"
+				echo "	  -s [size]                   Size of the word. Must be greater than 1. Will be omitted"
+				echo "	                            by -r if used."
+				echo "	  -h, --help                  Shows this menu."
+				echo "	  -v, --verbose [verbosity]   more verbose about what is happening. Must be at least 0"
+				echo "	  -r, --regex [pattern]       Use a regular expression pattern to find words. This will"
+				echo "	                            omit the use of -s."
+				echo "	  -f, --file [filename]       Use a custom dictionary file."
+				echo "	  -d, --dict [filename]       Set the dictionary file in the config file."
+				echo ""
+				echo "	Exit Status:"
+				echo "	  0 : Success"
+				echo "	  1 : Failed due to invalid word length"
+				echo "	  2 : Failed due to invalid dictionary file"
+				echo "	  3 : Failed due to invalid verbosity"
+				echo "	  4 : Failed due to no word found"
+				echo "	  5 : Failed due to no regex pattern"
+				echo ""
+				echo "	Custom Dictionary Files:"
+				echo "	  To change files, change the contents of '$configFile' to the desired file."
+				echo "	  Only the name of the file should be placed there."
+				echo ""
+				echo "	Examples:"
+				echo "	  To get a random word with 10 characters from a custom dictionary:"
+				echo ""
+				echo "	    word -s 10 -f \"~/custom/dictionary\" "
+				echo ""
+				echo "	  To get a random word with the pattern 're' at the beginning of the word (Follows regex"
+				echo "	  pattern rules):"
+				echo ""
+				echo "	    word -r '^re'"
+				shift
+				;;
+
+			*):
+				echo "Invalid argument: '$1'"
+				echo "For help: 'word -h'"
+				exit 3
+		esac
+	done
+
+	#Recreate config file is there isnt one
+	if [ ! -f $configFile ]; then
+		touch $configFile
+		echo $dictFile > $configFile
+	fi
+
+	#Get the configured dictionary file if none is given
+	if [ ! "$dictFileGiven" -eq 1 ] && [ -f $configFile ]; then
+		file="$(cat "$configFile")"
+		if [ ! -z file ]; then
+			dictFile="$file"
+		fi
+	fi
+
+	#Would be two if the size or regex was given
+	if [ $gettingWord -ge 1 ]; then
+		getWord "$wordSize" "$anySize" "$verbosity" "$regexPattern" "$dictFile"
+	fi
+}
+
+main "$@"
+
+exit 0
