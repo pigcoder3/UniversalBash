@@ -14,4 +14,6 @@ This is done by changing the `PATH` in `HOME/.profile` or `HOME/.bash_profile`
 
  - fe (iron) - Finds and edits a file from any directory without knowing the exact path
 
- - tab - Creates a newline barrier that is the specified hieght
+ - tab - Creates a newline barrier that is the specified height
+
+ - word - Grabs a random word from the system dictionary (or configured or supplied file)
